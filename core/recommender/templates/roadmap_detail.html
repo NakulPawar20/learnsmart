@@ -1,0 +1,303 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if roadmap %}{{ roadmap.category }} - Roadmap{% else %}Roadmap Not Found{% endif %} | LearnSmart</title>
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="{% static 'recommender/images/favicon.png' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'recommender/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'recommender/css/search.css' %}">
+    <link rel="stylesheet" href="{% static 'recommender/css/roadmap.css' %}">
+</head>
+<body>
+    <header class="header">
+        <div class="header__inner">
+            <a href="{% url 'home' %}" class="logo">
+                <img src="{% static 'recommender/images/logo.png' %}" alt="LearnSmart logo" class="header-logo">
+                LearnSmart
+            </a>
+            <form class="search-bar search-bar--header" action="{% url 'search' %}" method="get">
+                <input type="search" name="q" placeholder="Search courses & roadmaps..." class="search-bar__input" aria-label="Search">
+                <button type="submit" class="search-bar__btn" aria-label="Submit search">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </button>
+            </form>
+            <nav class="nav">
+                <a href="{% url 'home' %}#home" class="nav__link">Home</a>
+                <a href="{% url 'home' %}#features" class="nav__link">Features</a>
+                <a href="{% url 'home' %}#roadmaps" class="nav__link">Roadmaps</a>
+                <a href="{% url 'home' %}#about" class="nav__link">About</a>
+                <a href="{% url 'recommend' %}" class="btn btn--primary">Recommendations</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="roadmap-detail">
+        {% if error %}
+        <div class="roadmap-detail__error">
+            <h1>Roadmap Not Found</h1>
+            <p>{{ error }}</p>
+            <a href="{% url 'home' %}#roadmaps" class="btn btn--primary">Browse Roadmaps</a>
+        </div>
+        {% elif roadmap %}
+        <div class="roadmap-detail__inner">
+            <a href="{% url 'home' %}#roadmaps" class="roadmap-detail__back">&larr; Back to Roadmaps</a>
+            <div class="roadmap-detail__header">
+                <h1 class="roadmap-detail__title">{{ roadmap.category }}</h1>
+                <p class="roadmap-detail__meta">
+                    {{ roadmap.skill_count }} skills &bull; ~{{ roadmap.total_days }} days to complete
+                </p>
+                <p class="roadmap-detail__desc">{{ roadmap.description }}</p>
+            </div>
+
+            <div class="roadmap-detail__skills">
+                <h2>Learning Path</h2>
+                <ol class="skill-list">
+                    {% for skill in roadmap.skills %}
+                    <li class="skill-item" data-skill-name="{{ skill.skill_name|escapejs }}" data-skill-index="{{ forloop.counter }}">
+                        <div class="skill-item__main">
+                            <span class="skill-item__num">{{ forloop.counter }}</span>
+                            <div class="skill-item__content">
+                                <h3 class="skill-item__name">{{ skill.skill_name }}</h3>
+                                <div class="skill-item__meta">
+                                    <span class="skill-item__badge difficulty-{{ skill.difficulty_level }}">Lvl {{ skill.difficulty_level }}</span>
+                                    <span class="skill-item__days">{{ skill.learning_time_days }} days</span>
+                                    <span class="skill-item__type">{{ skill.skill_type }}</span>
+                                    {% if skill.certification_available %}
+                                    <span class="skill-item__cert">Certification available</span>
+                                    {% endif %}
+                                </div>
+                                {% if skill.description %}
+                                <p class="skill-item__desc">{{ skill.description }}</p>
+                                {% endif %}
+                                {% if skill.prerequisites %}
+                                <div class="skill-item__prereqs">
+                                    <strong>Prerequisites:</strong> {{ skill.prerequisites|join:", " }}
+                                </div>
+                                {% endif %}
+                                {% if skill.complementary_skills %}
+                                <div class="skill-item__complements">
+                                    <strong>Complementary skills:</strong> {{ skill.complementary_skills|join:", " }}
+                                </div>
+                                {% endif %}
+                                {% if skill.industry_usage %}
+                                <div class="skill-item__industry">
+                                    <strong>Industry demand:</strong> {{ skill.industry_usage|join:", " }}
+                                </div>
+                                {% endif %}
+                                {% if skill.recommendations %}
+                                <div class="skill-item__recs" style="display: none;">
+                                    <strong>Recommended resources:</strong>
+                                    <div class="recs-grid">
+                                        <div class="rec-col">
+                                            <h4 class="rec-col__title">YouTube</h4>
+                                            <ul class="rec-list">
+                                                {% for item in skill.recommendations.youtube %}
+                                                <li class="rec-item"><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.title }}</a></li>
+                                                {% empty %}
+                                                <li class="rec-item rec-item--empty">No results</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <div class="rec-col">
+                                            <h4 class="rec-col__title">Udemy</h4>
+                                            <ul class="rec-list">
+                                                {% for item in skill.recommendations.udemy %}
+                                                <li class="rec-item"><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.title }}</a>{% if item.price %} <small>({{ item.price }})</small>{% endif %}</li>
+                                                {% empty %}
+                                                <li class="rec-item rec-item--empty">No results</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <div class="rec-col">
+                                            <h4 class="rec-col__title">Coursera</h4>
+                                            <ul class="rec-list">
+                                                {% for item in skill.recommendations.coursera %}
+                                                <li class="rec-item"><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.title }}</a></li>
+                                                {% empty %}
+                                                <li class="rec-item rec-item--empty">No results</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <div class="rec-col">
+                                            <h4 class="rec-col__title">Microsoft Learn</h4>
+                                            <ul class="rec-list">
+                                                {% for item in skill.recommendations.microsoft_learn %}
+                                                <li class="rec-item"><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.title }}</a></li>
+                                                {% empty %}
+                                                <li class="rec-item rec-item--empty">No results</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="skill-item__recs" data-skill-recommendations="{{ skill.skill_name|escapejs }}" style="display: none;">
+                                    <strong>Recommended resources:</strong>
+                                    <div class="recs-grid" id="recs-grid-{{ forloop.counter }}">
+                                        <div class="rec-col">
+                                            <h4 class="rec-col__title">YouTube</h4>
+                                            <ul class="rec-list">
+                                                <li class="rec-item rec-item--loading">Loading...</li>
+                                            </ul>
+                                        </div>
+                                        <div class="rec-col">
+                                            <h4 class="rec-col__title">Udemy</h4>
+                                            <ul class="rec-list">
+                                                <li class="rec-item rec-item--loading">Loading...</li>
+                                            </ul>
+                                        </div>
+                                        <div class="rec-col">
+                                            <h4 class="rec-col__title">Coursera</h4>
+                                            <ul class="rec-list">
+                                                <li class="rec-item rec-item--loading">Loading...</li>
+                                            </ul>
+                                        </div>
+                                        <div class="rec-col">
+                                            <h4 class="rec-col__title">Microsoft Learn</h4>
+                                            <ul class="rec-list">
+                                                <li class="rec-item rec-item--loading">Loading...</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <button class="skill-item__resources-btn" aria-label="Show resources for {{ skill.skill_name }}">Show Resources</button>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+        {% endif %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer__inner">
+            <span class="footer__logo">LearnSmart</span>
+            <p class="footer__copy">&copy; 2025 LearnSmart. Personalized Learning Recommendation System.</p>
+        </div>
+    </footer>
+
+    <script>
+    /**
+     * Load skill recommendations only when user clicks "Resources" button.
+     * This allows the roadmap to display instantly without any API calls.
+     * Recommendations are loaded on-demand only when user is interested.
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+        // Attach click handlers to all resource buttons
+        const resourceButtons = document.querySelectorAll('.skill-item__resources-btn');
+        
+        resourceButtons.forEach((btn) => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const skillItem = this.closest('.skill-item');
+                const recSection = skillItem.querySelector('.skill-item__recs');
+                const skillName = skillItem.getAttribute('data-skill-name');
+                
+                // Toggle the visibility
+                const isShown = recSection.style.display !== 'none';
+                
+                if (isShown) {
+                    // Hide resources
+                    recSection.style.display = 'none';
+                    this.classList.remove('skill-item__resources-btn--active');
+                    this.textContent = 'Show Resources';
+                } else {
+                    // Show resources
+                    recSection.style.display = 'block';
+                    this.classList.add('skill-item__resources-btn--active');
+                    this.textContent = 'Hide Resources';
+                    
+                    // Load recommendations if they haven't been loaded yet
+                    const dataAttr = recSection.getAttribute('data-skill-recommendations');
+                    if (dataAttr && !recSection.hasAttribute('data-loaded')) {
+                        loadSkillRecommendations(recSection, skillName);
+                    }
+                }
+            });
+        });
+    });
+
+    function loadSkillRecommendations(recSection, skillName) {
+        const gridId = recSection.querySelector('.recs-grid').id;
+        
+        // Fetch recommendations for this skill
+        fetch(`/api/skill-recommendations/?skill_name=${encodeURIComponent(skillName)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateSkillRecommendations(gridId, data);
+                    // Mark as loaded
+                    recSection.setAttribute('data-loaded', 'true');
+                } else {
+                    showNoResults(gridId);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading recommendations:', error);
+                showNoResults(gridId);
+            });
+    }
+
+    function updateSkillRecommendations(gridId, data) {
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        const cols = grid.querySelectorAll('.rec-col');
+        const platforms = ['youtube', 'udemy', 'coursera', 'microsoft_learn'];
+
+        cols.forEach((col, index) => {
+            const platform = platforms[index];
+            const items = data[platform] || [];
+            const list = col.querySelector('.rec-list');
+
+            if (list) {
+                if (items.length === 0) {
+                    list.innerHTML = '<li class="rec-item rec-item--empty">No results</li>';
+                } else {
+                    const html = items.map(item => {
+                        const price = item.price ? ` <small>(${item.price})</small>` : '';
+                        return `<li class="rec-item"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>${price}</li>`;
+                    }).join('');
+                    list.innerHTML = html;
+                }
+            }
+        });
+    }
+
+    function showNoResults(gridId) {
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+
+        const cols = grid.querySelectorAll('.rec-col');
+        cols.forEach((col) => {
+            const list = col.querySelector('.rec-list');
+            if (list) {
+                list.innerHTML = '<li class="rec-item rec-item--empty">No results</li>';
+            }
+        });
+    }
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+    </script>
+</body>
+</html>

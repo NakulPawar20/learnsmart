@@ -1,0 +1,234 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommended Courses | LearnSmart</title>
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="{% static 'recommender/images/favicon.png' %}">
+    <link rel="stylesheet" href="{% static 'recommender/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'recommender/css/search.css' %}">
+</head>
+<body>
+    <header class="header">
+        <div class="header__inner">
+            <a href="{% url 'home' %}" class="logo">
+                <img src="{% static 'recommender/images/logo.png' %}" alt="LearnSmart logo" class="header-logo">
+                LearnSmart
+            </a>
+            <form class="search-bar search-bar--header" action="{% url 'search' %}" method="get">
+                <input type="search" name="q" placeholder="Search courses & roadmaps..." class="search-bar__input" aria-label="Search">
+                <button type="submit" class="search-bar__btn" aria-label="Submit search">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </button>
+            </form>
+            <nav class="nav">
+                <a href="{% url 'home' %}" class="nav__link">Home</a>
+                <a href="{% url 'home' %}#roadmaps" class="nav__link">Roadmaps</a>
+            </nav>
+        </div>
+    </header>
+    <main style="max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem;">
+        <div style="margin-bottom: 2rem;">
+            <h1>Personalized Course Recommendations</h1>
+            
+            <!-- Search Skill Box -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);">
+                <h2 style="margin: 0 0 1rem 0; color: white; font-size: 1.3rem;">🔍 Find Courses for Your Skills</h2>
+                <form action="{% url 'recommend' %}" method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <input 
+                        type="text" 
+                        name="skills" 
+                        placeholder="Enter skill (e.g. Python, JavaScript, Data Science, UI Design)" 
+                        style="flex: 1; min-width: 300px; padding: 0.75rem 1rem; border: none; border-radius: 6px; font-size: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1);"
+                        value="{{ search_query }}"
+                    >
+                    <button type="submit" style="background: white; color: #667eea; border: none; padding: 0.75rem 2rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: all 0.3s; box-shadow: 0 2px 6px rgba(0,0,0,0.1);" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='white'">
+                        Search Courses →
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Current Search Display -->
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 2rem;">
+                <p style="color: #333; font-size: 1rem; margin: 0;">
+                    <strong>Showing recommendations for:</strong> <span style="color: #667eea; font-weight: 600; font-size: 1.1rem;">{{ user_skills }}</span>
+                    {% if user_goal %}<br><strong>Goal:</strong> {{ user_goal }}{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- YouTube Courses -->
+        {% if youtube_courses %}
+        <section style="margin-bottom: 3rem;">
+            <h2 style="color: #e74c3c; margin-bottom: 1.5rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 0.5rem;">
+                    <path d="M19.615 3.415c-1.343-.686-8.615-.686-8.615-.686s-7.272 0-8.615.686C.806 4.101 0 5.743 0 9.215v5.57c0 3.472.806 5.114 2.385 5.8 1.343.686 8.615.686 8.615.686s7.272 0 8.615-.686c1.58-.686 2.385-2.328 2.385-5.8v-5.57c0-3.472-.806-5.114-2.385-5.8z" style="fill: #e74c3c;"/>
+                    <path d="M9.6 14.4V8.4l6 3z" style="fill: white;"/>
+                </svg>
+                YouTube Courses
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+                {% for course in youtube_courses %}
+                <a href="{{ course.url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                    <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <img src="{{ course.thumbnail }}" alt="{{ course.title }}" style="width: 100%; height: 150px; object-fit: cover; background: #f0f0f0;">
+                        <div style="padding: 1rem;">
+                            <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; font-weight: 600;">{{ course.title|truncatewords:10 }}</h3>
+                            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #666;">{{ course.channel }}</p>
+                            <div style="margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="background: #e74c3c; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">{{ course.level }}</span>
+                                <span style="color: #999; font-size: 0.85rem;">👁️ {{ course.views }}</span>
+                            </div>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #27ae60; font-weight: 500;">{{ course.price }}</p>
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                <p style="color: #999;">No YouTube courses found for your search.</p>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Udemy Courses -->
+        {% if udemy_courses %}
+        <section style="margin-bottom: 3rem;">
+            <h2 style="color: #5b4a98; margin-bottom: 1.5rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#5b4a98" style="vertical-align: middle; margin-right: 0.5rem;">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M8 10l2 2 4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Udemy Courses
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+                {% for course in udemy_courses %}
+                <a href="{{ course.url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                    <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <img src="{{ course.thumbnail }}" alt="{{ course.title }}" style="width: 100%; height: 150px; object-fit: cover; background: #f0f0f0;">
+                        <div style="padding: 1rem;">
+                            <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; font-weight: 600;">{{ course.title|truncatewords:10 }}</h3>
+                            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #666;">by {{ course.instructor }}</p>
+                            <div style="margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="background: #5b4a98; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">{{ course.level }}</span>
+                                <span style="color: #f59e0b; font-size: 0.9rem;">⭐ {{ course.rating }}</span>
+                            </div>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">{{ course.students }} 👥 | <strong>{{ course.price }}</strong></p>
+                            {% if course.badge %}<p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: #27ae60;">✓ {{ course.badge }}</p>{% endif %}
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                <p style="color: #999;">No Udemy courses found for your search.</p>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+
+
+        <!-- Microsoft Learn Courses -->
+        {% if microsoft_learn_courses %}
+        <section style="margin-bottom: 3rem;">
+            <h2 style="color: #0078d4; margin-bottom: 1.5rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#0078d4" style="vertical-align: middle; margin-right: 0.5rem;">
+                    <rect x="2" y="2" width="8" height="8" fill="currentColor"/>
+                    <rect x="14" y="2" width="8" height="8" fill="currentColor"/>
+                    <rect x="2" y="14" width="8" height="8" fill="currentColor"/>
+                    <rect x="14" y="14" width="8" height="8" fill="currentColor"/>
+                </svg>
+                Microsoft Learn ({{ microsoft_learn_courses|length }} results)
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                {% for course in microsoft_learn_courses %}
+                <a href="{{ course.url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                    <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer; display: flex; flex-direction: column; height: 100%;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <img src="{{ course.thumbnail }}" alt="{{ course.title }}" style="width: 100%; height: 150px; object-fit: cover; background: #f0f0f0;">
+                        <div style="padding: 1rem; flex: 1; display: flex; flex-direction: column;">
+                            <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; font-weight: 600;">{{ course.title|truncatewords:12 }}</h3>
+                            <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #666;">{{ course.org }}</p>
+                            {% if course.description %}
+                            <p style="margin: 0.5rem 0; font-size: 0.85rem; color: #555; line-height: 1.4; flex: 1;">{{ course.description }}</p>
+                            {% endif %}
+                            <div style="margin-top: auto;">
+                                <div style="margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                                    <span style="background: #0078d4; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">{{ course.level }}</span>
+                                    <span style="color: #f59e0b; font-size: 0.9rem;">⭐ {{ course.rating }}</span>
+                                </div>
+                                <p style="margin: 0.3rem 0; font-size: 0.85rem;">{{ course.duration }} | {{ course.enrolled }} 👥</p>
+                                <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #27ae60; font-weight: 500;">{{ course.price }}</p>
+                                <span style="background: #50e6ff; color: #005a9c; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-top: 0.5rem; display: inline-block;">{{ course.badge }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                <p style="color: #999;">No Microsoft Learn courses found for your search.</p>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Coursera Courses -->
+        {% if coursera_courses %}
+        <section style="margin-bottom: 3rem;">
+            <h2 style="color: #0056D2; margin-bottom: 1.5rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#0056D2" style="vertical-align: middle; margin-right: 0.5rem;">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Coursera Courses
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+                {% for course in coursera_courses %}
+                <a href="{{ course.url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                    <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <img src="{{ course.thumbnail }}" alt="{{ course.title }}" style="width: 100%; height: 150px; object-fit: cover; background: #f0f0f0;">
+                        <div style="padding: 1rem;">
+                            <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; font-weight: 600;">{{ course.title|truncatewords:10 }}</h3>
+                            {% if course.description %}
+                            <p style="margin: 0.25rem 0; font-size: 0.85rem; color: #666; line-height: 1.3;">{{ course.description }}</p>
+                            {% endif %}
+                            <div style="margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="background: #0056D2; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">{{ course.level }}</span>
+                            </div>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #666; font-weight: 500;">{{ course.price }}</p>
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                <p style="color: #999;">No Coursera courses found for your search.</p>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if recommended_roadmaps %}
+        <section style="margin-bottom: 3rem;">
+            <h2 style="color: #2c3e50; margin-bottom: 1rem;">🗺️ Roadmap Ideas (Based on your skills)</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem;">
+                {% for roadmap in recommended_roadmaps %}
+                <a href="{% url 'roadmap_detail' roadmap.slug %}" style="background: white; border: 1px solid #e6e6e6; border-radius: 8px; padding: 1rem; text-decoration: none; color: inherit; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+                    <h3 style="margin-top: 0; margin-bottom: 0.35rem; font-size: 1rem;">{{ roadmap.category }}</h3>
+                    <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">{{ roadmap.description }}</p>
+                    <p style="margin: 0; font-size: 0.82rem; color: #555;">{{ roadmap.match_count }} matching skills • {{ roadmap.skill_count }} total skills • ~{{ roadmap.total_days }} days</p>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <div style="margin-top: 3rem; padding: 2rem; background: #f5f5f5; border-radius: 8px; text-align: center;">
+            <p style="margin: 0; color: #666;">
+                <a href="{% url 'home' %}#roadmaps" style="color: #3498db; text-decoration: none; font-weight: 500;">Browse Interactive Roadmaps</a> | 
+                <a href="{% url 'search' %}" style="color: #3498db; text-decoration: none; font-weight: 500;">Search Courses & Roadmaps</a> | 
+                <a href="{% url 'home' %}" style="color: #3498db; text-decoration: none; font-weight: 500;">Back to Home</a>
+            </p>
+        </div>
+    </main>
+</body>
+</html>

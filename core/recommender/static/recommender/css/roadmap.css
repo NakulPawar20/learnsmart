@@ -1,0 +1,311 @@
+/* Roadmap detail page styles */
+.roadmap-detail {
+  min-height: 100vh;
+  padding: 6rem 1.5rem 4rem;
+  background: var(--color-hero-bg, #e8f5f5);
+}
+
+.roadmap-detail__inner {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.roadmap-detail__back {
+  display: inline-block;
+  color: var(--color-primary, #10b981);
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  transition: opacity 0.2s;
+}
+
+.roadmap-detail__back:hover {
+  opacity: 0.8;
+  color: var(--color-primary, #10b981);
+}
+
+.roadmap-detail__header {
+  background: var(--color-white, #ffffff);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.roadmap-detail__title {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text, #2d3748);
+  margin-bottom: 0.5rem;
+}
+
+.roadmap-detail__meta {
+  color: var(--color-text-muted, #4a5568);
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.roadmap-detail__desc {
+  color: var(--color-text-muted, #4a5568);
+  line-height: 1.6;
+}
+
+.roadmap-detail__skills {
+  background: var(--color-white, #ffffff);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.roadmap-detail__skills h2 {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text, #2d3748);
+  margin-bottom: 1.5rem;
+}
+
+.roadmap-detail__error {
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.roadmap-detail__error h1 {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  margin-bottom: 1rem;
+}
+
+.roadmap-detail__error p {
+  color: var(--color-text-muted, #4a5568);
+  margin-bottom: 1.5rem;
+}
+
+/* Skill list */
+.skill-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: skill-num;
+}
+
+.skill-item {
+  position: relative;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid #e2e8f0;
+  counter-increment: skill-num;
+}
+
+.skill-item:last-child {
+  border-bottom: none;
+}
+
+.skill-item__main {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.skill-item__num {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--color-primary, #10b981);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.skill-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.skill-item__name {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text, #2d3748);
+  margin-bottom: 0.5rem;
+}
+
+.skill-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.skill-item__badge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.skill-item__badge.difficulty-1 { background: #d1fae5; color: #065f46; }
+.skill-item__badge.difficulty-2 { background: #bfdbfe; color: #1e40af; }
+.skill-item__badge.difficulty-3 { background: #fef3c7; color: #92400e; }
+.skill-item__badge.difficulty-4 { background: #fed7aa; color: #9a3412; }
+.skill-item__badge.difficulty-5 { background: #fecaca; color: #991b1b; }
+
+.skill-item__days {
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #4a5568);
+}
+
+.skill-item__type {
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #4a5568);
+}
+
+.skill-item__cert {
+  font-size: 0.75rem;
+  color: var(--color-primary, #10b981);
+  font-weight: 500;
+}
+
+.skill-item__resources-btn {
+  flex-shrink: 0;
+  padding: 0.75rem 2rem;
+  background: var(--color-primary, #10b981);
+  color: var(--color-white, #ffffff);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: none;
+}
+
+.skill-item__resources-btn:hover {
+  background: var(--color-primary-hover, #059669);
+  transform: none;
+  box-shadow: none;
+}
+
+.skill-item__resources-btn:active {
+  transform: scale(0.98);
+  box-shadow: none;
+}
+
+.skill-item__resources-btn--active {
+  background: var(--color-teal, #5bc0be);
+  box-shadow: none;
+}
+
+.skill-item__resources-btn--active:hover {
+  background: #4a9fa6;
+  transform: none;
+}
+
+.skill-item__desc {
+  font-size: 0.9rem;
+  color: var(--color-text-muted, #4a5568);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.skill-item__prereqs {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.skill-item__prereqs strong {
+  color: var(--color-text, #2d3748);
+}
+
+/* Recommendations section */
+.skill-item__recs {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.skill-item__recs strong {
+  display: block;
+  margin-bottom: 1rem;
+  color: var(--color-text, #2d3748);
+  font-weight: 600;
+}
+
+.recs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.rec-col {
+  background: #f7fafc;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+}
+
+.rec-col__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-primary, #10b981);
+  margin-bottom: 0.75rem;
+}
+
+.rec-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rec-item {
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.rec-item a {
+  color: var(--color-primary, #10b981);
+  text-decoration: none;
+  transition: opacity 0.2s;
+  word-break: break-word;
+}
+
+.rec-item a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.rec-item small {
+  color: #718096;
+  font-weight: 500;
+  margin-left: 0.25rem;
+}
+
+.rec-item--empty {
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.rec-item--loading {
+  color: #a0aec0;
+  font-style: italic;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

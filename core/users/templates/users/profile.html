@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - LearnSmart</title>
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="{% static 'recommender/images/favicon.png' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'recommender/css/style.css' %}">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="{% url 'home' %}" class="header-logo">
+                <img src="{% static 'recommender/images/logo.png' %}" alt="LearnSmart logo" class="header-logo">
+                LearnSmart
+            </a>
+            <nav class="header-nav">
+                <a href="{% url 'home' %}" class="nav-link">Home</a>
+                <a href="{% url 'profile' %}" class="nav-link">Profile</a>
+                <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="padding: 2rem 0;">
+        <div class="auth-card" style="max-width: 600px; margin: 0 auto;">
+            <h1 class="auth-title">Your Profile</h1>
+            <div style="margin-top: 2rem;">
+                <p><strong>Username:</strong> {{ profile.user.username }}</p>
+                <p><strong>Email:</strong> {{ profile.user.email }}</p>
+                <p><strong>Goal:</strong> {{ profile.goal }}</p>
+                <p><strong>Skills:</strong> {{ profile.skills }}</p>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

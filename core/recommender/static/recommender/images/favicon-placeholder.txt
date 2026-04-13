@@ -1,0 +1,8 @@
+This directory holds image assets for the recommender app.
+
+Place the logo you want to use as a favicon in this folder and name it `favicon.png` (or `favicon.ico`).
+
+Example:
+  cp path/to/logo.png favicon.png
+
+After adding the file, the templates already include a link to `{% static 'recommender/images/favicon.png' %}` which will be used by the browser.

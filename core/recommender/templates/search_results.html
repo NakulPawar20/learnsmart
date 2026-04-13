@@ -1,0 +1,270 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search{% if query %} - {{ query }}{% endif %} | LearnSmart</title>
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="{% static 'recommender/images/favicon.png' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'recommender/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'recommender/css/search.css' %}">
+</head>
+<body>
+    <header class="header">
+        <div class="header__inner">
+            <a href="{% url 'home' %}" class="logo">
+                <img src="{% static 'recommender/images/logo.png' %}" alt="LearnSmart logo" class="header-logo">
+                LearnSmart
+            </a>
+            <form class="search-bar search-bar--header" action="{% url 'search' %}" method="get">
+                <input type="search" name="q" value="{{ query }}" placeholder="Search courses & roadmaps..." class="search-bar__input" aria-label="Search">
+                <button type="submit" class="search-bar__btn" aria-label="Submit search">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </button>
+            </form>
+            <nav class="nav">
+                <a href="{% url 'home' %}" class="nav__link">Home</a>
+                <a href="{% url 'recommend' %}" class="nav__link">Recommendations</a>
+                <a href="{% url 'home' %}#roadmaps" class="nav__link">Roadmaps</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="search-page">
+        <div class="search-page__inner">
+            <form class="search-hero" action="{% url 'search' %}" method="get">
+                <h1 class="search-hero__title">Search Courses & Roadmaps</h1>
+                <div class="search-hero__bar">
+                    <input type="search" name="q" value="{{ query }}" placeholder="e.g. Python, Machine Learning, DevOps..." class="search-hero__input" autofocus>
+                    <button type="submit" class="btn btn--primary btn--lg">Search</button>
+                </div>
+                <div class="search-hero__filters">
+                    <label class="filter-option">
+                        <input type="radio" name="type" value="all" {% if type_filter == 'all' %}checked{% endif %}>
+                        <span>All</span>
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="type" value="courses" {% if type_filter == 'courses' %}checked{% endif %}>
+                        <span>Courses</span>
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="type" value="roadmaps" {% if type_filter == 'roadmaps' %}checked{% endif %}>
+                        <span>Roadmaps</span>
+                    </label>
+                </div>
+            </form>
+
+            {% if query %}
+            <div class="search-results">
+                {% if not has_results %}
+                <div class="search-empty">
+                    <p>No results found for <strong>"{{ query }}"</strong></p>
+                    <p>Try different keywords or browse <a href="{% url 'home' %}#roadmaps">all roadmaps</a>.</p>
+                </div>
+                {% else %}
+
+                <!-- PERSONALIZED ROADMAP SECTION FOR SEARCH QUERY -->
+                {% if search_roadmap %}
+                <section class="search-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <h2 class="search-section__title" style="color: white; margin-bottom: 1.5rem;">🗺️ Learning Roadmap for "{{ query }}"</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        {% for item in search_roadmap %}
+                        <div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 1rem; backdrop-filter: blur(10px);">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                <span style="background: rgba(255,255,255,0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">{{ item.step|default:forloop.counter }}</span>
+                                <h4 style="margin: 0; color: white;">{{ item.skill }}</h4>
+                            </div>
+                            {% if item.days %}<p style="margin: 0.5rem 0; font-size: 0.875rem; color: rgba(255,255,255,0.8);">⏱️ {{ item.days }} days</p>{% endif %}
+                            {% if item.difficulty %}<p style="margin: 0; font-size: 0.875rem; color: rgba(255,255,255,0.8);">📊 Level {{ item.difficulty }}</p>{% endif %}
+                            
+                            {% if item.recommended_courses %}
+                            <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 0.75rem;">
+                                <p style="margin: 0 0 0.5rem 0; font-size: 0.875rem; font-weight: 600;">📚 Recommended Courses:</p>
+                                <ul style="margin: 0; padding: 0; list-style: none; font-size: 0.8rem;">
+                                {% for course in item.recommended_courses|slice:":3" %}
+                                    <li style="margin-bottom: 0.5rem;">
+                                        <a href="{{ course.url }}" target="_blank" style="color: #fff; text-decoration: underline; display: inline-block; max-width: 100%; word-break: break-word;">{{ course.title|truncatewords:6 }}</a>
+                                        <span style="background: rgba(255,255,255,0.2); padding: 0.2rem 0.4rem; border-radius: 3px; margin-left: 0.5rem;">{{ course.platform }}</span>
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- API COURSES SECTIONS -->
+                {% if api_courses.youtube %}
+                <section class="search-section">
+                    <h2 class="search-section__title" style="color: #e74c3c; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#e74c3c" style="vertical-align: middle;">
+                            <path d="M19.615 3.415c-1.343-.686-8.615-.686-8.615-.686s-7.272 0-8.615.686C.806 4.101 0 5.743 0 9.215v5.57c0 3.472.806 5.114 2.385 5.8 1.343.686 8.615.686 8.615.686s7.272 0 8.615-.686c1.58-.686 2.385-2.328 2.385-5.8v-5.57c0-3.472-.806-5.114-2.385-5.8z" style="fill: #e74c3c;"/>
+                            <path d="M9.6 14.4V8.4l6 3z" style="fill: white;"/>
+                        </svg>
+                        YouTube ({{ api_courses.youtube|length }})
+                    </h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                        {% for course in api_courses.youtube %}
+                        <a href="{{ course.url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                            <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer; height: 100%; display: flex; flex-direction: column;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                                <img src="{{ course.thumbnail }}" alt="{{ course.title }}" style="width: 100%; height: 120px; object-fit: cover; background: #f0f0f0;">
+                                <div style="padding: 0.75rem; flex: 1; display: flex; flex-direction: column;">
+                                    <h4 style="margin: 0 0 0.25rem 0; font-size: 0.9rem; font-weight: 600; line-height: 1.3;">{{ course.title|truncatewords:8 }}</h4>
+                                    <p style="margin: 0.25rem 0; font-size: 0.8rem; color: #666;">{{ course.channel }}</p>
+                                    <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.25rem; font-size: 0.75rem;">
+                                        <span style="background: #e74c3c; color: white; padding: 0.2rem 0.4rem; border-radius: 3px;">{{ course.level }}</span>
+                                        <span style="color: #999;">👁️ {{ course.views }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                {% if api_courses.udemy %}
+                <section class="search-section">
+                    <h2 class="search-section__title" style="color: #5b4a98; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#5b4a98" style="vertical-align: middle;">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M8 10l2 2 4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Udemy ({{ api_courses.udemy|length }})
+                    </h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                        {% for course in api_courses.udemy %}
+                        <a href="{{ course.url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                            <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer; height: 100%; display: flex; flex-direction: column;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                                <img src="{{ course.thumbnail }}" alt="{{ course.title }}" style="width: 100%; height: 120px; object-fit: cover; background: #f0f0f0;">
+                                <div style="padding: 0.75rem; flex: 1; display: flex; flex-direction: column;">
+                                    <h4 style="margin: 0 0 0.25rem 0; font-size: 0.9rem; font-weight: 600; line-height: 1.3;">{{ course.title|truncatewords:8 }}</h4>
+                                    <p style="margin: 0.25rem 0; font-size: 0.8rem; color: #666;">by {{ course.instructor }}</p>
+                                    <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.25rem; font-size: 0.75rem;">
+                                        <span style="background: #5b4a98; color: white; padding: 0.2rem 0.4rem; border-radius: 3px;">{{ course.level }}</span>
+                                        <span style="color: #f59e0b;">⭐ {{ course.rating }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+
+
+                {% if api_courses.microsoft_learn %}
+                <section class="search-section">
+                    <h2 class="search-section__title" style="color: #0078d4; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#0078d4" style="vertical-align: middle;">
+                            <rect x="2" y="2" width="8" height="8" fill="currentColor"/>
+                            <rect x="14" y="2" width="8" height="8" fill="currentColor"/>
+                            <rect x="2" y="14" width="8" height="8" fill="currentColor"/>
+                            <rect x="14" y="14" width="8" height="8" fill="currentColor"/>
+                        </svg>
+                        Microsoft Learn ({{ api_courses.microsoft_learn|length }})
+                    </h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                        {% for course in api_courses.microsoft_learn %}
+                        <a href="{{ course.url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                            <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer; height: 100%; display: flex; flex-direction: column;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                                <img src="{{ course.thumbnail }}" alt="{{ course.title }}" style="width: 100%; height: 120px; object-fit: cover; background: #f0f0f0;">
+                                <div style="padding: 0.75rem; flex: 1; display: flex; flex-direction: column;">
+                                    <h4 style="margin: 0 0 0.25rem 0; font-size: 0.9rem; font-weight: 600; line-height: 1.3;">{{ course.title|truncatewords:8 }}</h4>
+                                    <p style="margin: 0.25rem 0; font-size: 0.8rem; color: #666;">{{ course.org }}</p>
+                                    <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.25rem; font-size: 0.75rem;">
+                                        <span style="background: #0078d4; color: white; padding: 0.2rem 0.4rem; border-radius: 3px;">{{ course.level }}</span>
+                                        <span style="color: #f59e0b;">⭐ {{ course.rating }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                {% if api_courses.coursera %}
+                <section class="search-section">
+                    <h2 class="search-section__title" style="color: #0056D2; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#0056D2" style="vertical-align: middle;">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Coursera ({{ api_courses.coursera|length }})
+                    </h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                        {% for course in api_courses.coursera %}
+                        <a href="{{ course.url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                            <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer; height: 100%; display: flex; flex-direction: column;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                                <img src="{{ course.thumbnail }}" alt="{{ course.title }}" style="width: 100%; height: 120px; object-fit: cover; background: #f0f0f0;">
+                                <div style="padding: 0.75rem; flex: 1; display: flex; flex-direction: column;">
+                                    <h4 style="margin: 0 0 0.25rem 0; font-size: 0.9rem; font-weight: 600; line-height: 1.3;">{{ course.title|truncatewords:8 }}</h4>
+                                    {% if course.description %}<p style="margin: 0.25rem 0; font-size: 0.8rem; color: #666;">{{ course.description|truncatewords:5 }}</p>{% endif %}
+                                    <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.25rem; font-size: 0.75rem;">
+                                        <span style="background: #0056D2; color: white; padding: 0.2rem 0.4rem; border-radius: 3px;">{{ course.level }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- ROADMAPS SECTION -->
+                {% if roadmaps %}
+                <section class="search-section">
+                    <h2 class="search-section__title">Roadmaps ({{ roadmaps|length }})</h2>
+                    <div class="search-list search-list--roadmaps">
+                        {% for r in roadmaps %}
+                        <a href="{% url 'roadmap_detail' r.slug %}" class="search-item search-item--roadmap">
+                            <h3 class="search-item__title">{{ r.category }}</h3>
+                            <p class="search-item__meta">{{ r.match_count }} matching skill{{ r.match_count|pluralize }} &bull; {{ r.skill_count }} total skills &bull; ~{{ r.total_days }} days</p>
+                            <p class="search-item__desc">{{ r.description }}</p>
+                            {% if r.matching_skills %}
+                            <div class="search-item__matches">
+                                {% for skill in r.matching_skills|slice:":5" %}
+                                <span class="match-tag">{{ skill.skill_name }}</span>
+                                {% endfor %}
+                                {% if r.matching_skills|length > 5 %}
+                                <span class="match-tag">+{{ r.matching_skills|length|add:"-5" }} more</span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="search-empty">
+                <p>Enter a search term to find courses and roadmaps.</p>
+                <p>Try <strong>Python</strong>, <strong>Machine Learning</strong>, <strong>Data Science</strong>, or <strong>DevOps</strong>.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer__inner">
+            <span class="footer__logo">LearnSmart</span>
+            <p class="footer__copy">&copy; 2025 LearnSmart. Personalized Learning Recommendation System.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
